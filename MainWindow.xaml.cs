@@ -60,11 +60,27 @@ namespace CM_Lab3
 
         private void CreateSeriesButton_Click(object sender, RoutedEventArgs e)
         {
+            // Создаем OpenFileDialog
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
+            List<DataPoint> points;
+
+            // Открываем диалоговое окно выбора файла
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // Получаем имя выбранного файла
+                var fileName = openFileDialog.FileName;
+                // Загрузка точек для графика из файла
+                points = ReadPointsFromFile(fileName);
+            }
+            else
+            {
+                return;
+            } 
+
             EnableButtons();
             // Очистка графиков перед построением новых
-            _plotModel.Series.Clear();
-            // Загрузка точек для графика из файла
-            var points = ReadPointsFromFile("points.txt");
+            _plotModel.Series.Clear();;
 
             List<ScatterPoint> scatterPoints = points.ConvertAll(dp => new ScatterPoint(dp.X, dp.Y, 5, 0));
 
