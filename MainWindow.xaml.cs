@@ -100,8 +100,8 @@ namespace CM_Lab3
             {
                 Title = "Интерполяция Лагранжа",
                 LineStyle = LineStyle.Solid,
-                Color = OxyColors.CadetBlue,
-                StrokeThickness = 3
+                Color = OxyColors.Blue,
+                StrokeThickness = 5
             };
             lagrangeSeries.Points.AddRange(lagrangePoints);
             _plotModel.Series.Add(lagrangeSeries);
@@ -116,7 +116,7 @@ namespace CM_Lab3
             newtonSeries = new LineSeries
             {
                 Title = "Интерполяция Ньютона",
-                LineStyle = LineStyle.Dot,
+                LineStyle = LineStyle.Solid,
                 Color = OxyColors.Red
             };
             newtonSeries.Points.AddRange(newtonPoints);
@@ -233,7 +233,9 @@ namespace CM_Lab3
             polynomialSeries = new LineSeries
             {
                 Title = "Многочлен заданных коэффициентов",
-                StrokeThickness = 2
+                StrokeThickness = 2,
+                LineStyle = LineStyle.Dot,
+                Color = OxyColors.White
             };
 
             // Добавляем точки к графику многочлена
