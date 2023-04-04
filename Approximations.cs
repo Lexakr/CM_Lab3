@@ -17,13 +17,13 @@ namespace CM_Lab3
             // Цикл по всем точкам, через которые проходит многочлен Лагранжа
             for (int i = 0; i < points.Count; i++)
             {
-                // Значение базисного полинома Лагранжа в точке x
-                double basis = 1.0;
+                // Значение базисного многочлена Лагранжа в точке x
+                double basis = 1;
                 // Значения X и Y текущей точки
                 double xi = points[i].X;
                 double yi = points[i].Y;
 
-                // Вложенный цикл для вычисления базисного полинома Лагранжа
+                // Цикл для вычисления i-го базисного полинома Лагранжа
                 foreach (var point in points)
                 {
                     // Если X вложенной точки не равен X текущей точки, выполняем умножение
@@ -33,7 +33,7 @@ namespace CM_Lab3
                     }
                 }
 
-                // Добавление значения базисного полинома Лагранжа, умноженного на значение функции в точке yi, к результату
+                // Добавление базисного i-го полинома, умноженного на fi(x), к результату
                 result += basis * yi;
             }
 
@@ -43,9 +43,10 @@ namespace CM_Lab3
         /// <summary>
         /// Метод для вычисления разделенной разности для заданного интервала точек
         /// </summary>
-        private static double DividedDifference(IList<ScatterPoint> points, int startIndex, int endIndex)
+        public static List<double> DividedDifference(IList<ScatterPoint> points, int startIndex, int endIndex)
         {
             int n = points.Count;
+            List<double> result = new();
             // Создание двумерного массива для хранения разделенных разностей
             double[,] dividedDifferences = new double[n, n];
 
@@ -62,28 +63,29 @@ namespace CM_Lab3
                 {
                     dividedDifferences[i, j] = (dividedDifferences[i + 1, j - 1] - dividedDifferences[i, j - 1]) / (points[i + j].X - points[i].X);
                 }
+                result.Add(dividedDifferences[0,j]);
             }
 
-            return dividedDifferences[startIndex, endIndex - startIndex];
+            return result;
         }
 
         /// <summary>
         /// Метод для интерполяции функции с помощью формулы Ньютона
         /// </summary>
-        public static double NewtonInterpolation(IList<ScatterPoint> points, double x)
+        public static double NewtonInterpolation(IList<ScatterPoint> points, List<double> dividedDifferences, double x)
         {
-            // Начальное значение результата - значение Y координаты первой точки
+            // Начальное значение результата - f(x0)
             double result = points[0].Y;
             // Переменная для хранения произведения (x-x0)*(x-x1)*...*(x-xn)
             double xn = 1;
 
             // Цикл по точкам для вычисления интерполирующего полинома
-            for (int n = 1; n < points.Count; n++)
+            for (int n = 0; n < points.Count - 1; n++)
             {
                 // Обновление произведения (x-x0)*(x-x1)*...*(x-xn)
-                xn *= (x - points[n - 1].X);
-                // Прибавление значения i-го члена интерполирующего полинома к результату
-                result += DividedDifference(points, 0, n) * xn;
+                xn *= (x - points[n].X);
+                // Прибавление значения n-го члена интерполирующего многочлена к результату
+                result += dividedDifferences[n] * xn;
             }
 
             return result;
@@ -149,7 +151,7 @@ namespace CM_Lab3
 
         /// <summary>
         /// Метод, вычисляющий точки для построения графика по 
-        /// многочлену четвертой степени с заданными коэффициентами
+        /// многочлену четвертой степени с произвольными коэффициентами
         /// </summary>
         public static List<DataPoint> GenerateCustomPolynomialPoints(double[] coefficients, double minX, double maxX)
         {

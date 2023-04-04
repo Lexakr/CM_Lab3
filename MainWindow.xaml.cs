@@ -19,8 +19,13 @@ namespace CM_Lab3
         private LineSeries lagrangeSeries;
         private LineSeries newtonSeries;
         private LineSeries polynomialSeries;
+        /// <summary>
+        /// Флаг наличия графиков сглаживающих
+        /// </summary>
         private bool IsSmoothedSeries = false;
-
+        /// <summary>
+        /// Коэффициенты многочлена из MathCad
+        /// </summary>
         private double[] coefficients;
         private double minX;
         private double maxX;
@@ -89,6 +94,7 @@ namespace CM_Lab3
             minX = points.Min(p => p.X);
             maxX = points.Max(p => p.X);
 
+
             // График интерполяции многочленом Лагранжа
             var lagrangePoints = new List<DataPoint>();
             for (double x = minX; x <= maxX; x += step)
@@ -106,11 +112,14 @@ namespace CM_Lab3
             lagrangeSeries.Points.AddRange(lagrangePoints);
             _plotModel.Series.Add(lagrangeSeries);
 
+
             // График интерполяции многочленом Ньютона
             var newtonPoints = new List<DataPoint>();
+            // Вычисление разделенных разностей 1..scatterPoints.Count-1 порядка
+            List<double> dividedDifferences = DividedDifference(scatterPoints, 0, scatterPoints.Count);
             for (double x = minX; x <= maxX; x += step)
             {
-                double y = NewtonInterpolation(scatterPoints, x);
+                double y = NewtonInterpolation(scatterPoints, dividedDifferences, x);
                 newtonPoints.Add(new DataPoint(x, y));
             }
             newtonSeries = new LineSeries
@@ -122,9 +131,11 @@ namespace CM_Lab3
             newtonSeries.Points.AddRange(newtonPoints);
             _plotModel.Series.Add(newtonSeries);
 
+
             // Графики сглаживающих многочленов 1..3 степени
             for (int degree = 1; degree <= 3; degree++)
             {
+                // Получение наилучших коэффициентов (дающих минимум функции F) с помощью МНК
                 var coefficients = FindPolynomialCoefficients(scatterPoints, degree);
                 var smoothedPoints = new List<DataPoint>();
 
